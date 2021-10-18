@@ -42,12 +42,17 @@ configurations.all {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = modVersion
-group = modGroup
-archivesBaseName = modId
+ext {
+    version = "1.0.3"
+    group = "bloodasp.galactigreg"
+    archivesBaseName = "galacticgreg"
+
+    minecraftVersion = "1.7.10"
+    forgeVersion = "10.13.4.1614"
+}
 
 minecraft {
-    version = "${minecraftVersion}-${forgeVersion}-${minecraftVersion}"
+    version = minecraftVersion + "-" + forgeVersion + "-" + minecraftVersion
     runDir = "run"
 
     replaceIn "src/main/java/bloodasp/galacticgreg/GalacticGreg.java"
@@ -92,10 +97,20 @@ repositories {
 }
 
 dependencies {
-    compile("com.github.SinTh0r4s:VisualProspecting:master-SNAPSHOT")
+
+    /*compile("com.github.GTNewHorizons:GT5-Unofficial:experimental-SNAPSHOT:dev") {
+        setChanging(true)
+    }*/
+    /*compile files('libs/gregtech-5.09.33.23-dev.jar')
+    compile files('libs/industrialcraft-2-2.2.810-experimental-dev.jar')
+    compile files('libs/appliedenergistics2-rv2-stable-7-dev.jar')
     compile files('libs/bartworks[1.7.10]-0.5.2_pre25-dev.jar')
     compile files('libs/GalacticraftCore-Dev-1.7-3.0.12.497.jar')
     compile files('libs/Galacticraft-Planets-Dev-1.7-3.0.12.497.jar')
+    compile files('MicdoodleCore-Dev-1.7-3.0.12.497.jar')*/
+    /*compile("com.github.SinTh0r4s:VisualProspecting:master-SNAPSHOT") {
+        exclude module: "GT5-Unofficial"
+    }*/
 }
 
 jar {
@@ -138,7 +153,7 @@ artifacts {
     archives sourceJar
 }
 
-task signJar(dependsOn: 'reobf'){
+/*task signJar(dependsOn: 'reobf'){
     doLast {
         ant.signjar(
             destDir: jar.destinationDir,
@@ -151,4 +166,4 @@ task signJar(dependsOn: 'reobf'){
             verbose: true
             )
     }
-}
+}*/

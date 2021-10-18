@@ -1,9 +1,14 @@
+import java.util.concurrent.TimeUnit
+
 buildscript {
     repositories {
-        mavenCentral()
+        maven {
+            name = "jitpack"
+            url = "https://jitpack.io"
+        }
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
         maven {
             name = "sonatype"
@@ -11,70 +16,107 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'com.github.GTNH2:ForgeGradle:FG_1.2-SNAPSHOT'
     }
 }
 
-apply plugin: 'forge'
-apply plugin: 'signing'
-
-file "build.properties" withReader {
-    def prop = new Properties()
-    prop.load(it)
-    ext.config = new ConfigSlurper().parse prop
+plugins {
+    id("org.ajoberstar.grgit") version("3.1.1")
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+apply plugin: 'forge'
+apply plugin: 'idea'
+
+idea {
+    module {
+        inheritOutputDirs = true
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor(0, TimeUnit.SECONDS)
+}
+
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-compileJava.options.encoding = 'UTF-8'
-// Never remove the MC version or you will break autobuild!
-// New 3-segment versioning. 0.9 MUST remain static, as this indicates "GT5" mode of this mod
-version = "${config.galactigreg.version}"
-group= "bloodasp.galactigreg" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "GalacticGreg"
+version = modVersion
+group = modGroup
+archivesBaseName = modId
 
 minecraft {
-    version = "1.7.10-10.13.4.1614-1.7.10"
-    runDir = "eclipse"
-    
+    version = "${minecraftVersion}-${forgeVersion}-${minecraftVersion}"
+    runDir = "run"
+
     replaceIn "src/main/java/bloodasp/galacticgreg/GalacticGreg.java"
-    replace "GRADLETOKEN_VERSION", project.version.split('-')[1]
+    replace "GRADLETOKEN_VERSION", version
+}
+
+repositories {
+    maven {
+        name = "CodeChicken"
+        url = "http://chickenbones.net/maven/"
+    }
+    maven {
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "ic2"
+        url = "http://maven.ic2.player.to/"
+    }
+    maven {
+        name = "appleCore"
+        url = "http://www.ryanliptak.com/maven/"
+    }
+    ivy {
+        name = "gtnh_download_source"
+        artifactPattern("http://downloads.gtnewhorizons.com/Mods_for_Jenkins/[module]-[revision].[ext]")
+    }
+    maven {
+        name = "UsrvDE/GTNH"
+        url = "http://jenkins.usrv.eu:8081/nexus/content/repositories/releases/"
+    }
+    maven {
+        name = "gt"
+        url = "https://gregtech.overminddl1.com/"
+    }
+    maven {
+        url "https://cursemaven.com"
+    }
+    maven {
+        name = "sponge"
+        url = "https://repo.spongepowered.org/repository/maven-public"
+    }
 }
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    compile("com.github.SinTh0r4s:VisualProspecting:master-SNAPSHOT")
+    compile files('libs/bartworks[1.7.10]-0.5.2_pre25-dev.jar')
+    compile files('libs/GalacticraftCore-Dev-1.7-3.0.12.497.jar')
+    compile files('libs/Galacticraft-Planets-Dev-1.7-3.0.12.497.jar')
+}
 
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+jar {
+    getArchiveAppendix().value("${minecraft.version}")
+    getArchiveVersion().value("${project.version}")
 }
 
 processResources
 {
-    def cleanVersion = project.version.split('-')[1]
     // this will ensure that this task is redone when the versions change.
-    inputs.property "version", cleanVersion
+    inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
-        expand 'version':cleanVersion, 'mcversion':project.minecraft.version
+        expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'

@@ -10,7 +10,10 @@ import bloodasp.galacticgreg.bartworks.BW_Worldgen_Ore_SmallOre_Space;
 import bloodasp.galacticgreg.dynconfig.DynamicDimensionConfig;
 import bloodasp.galacticgreg.dynconfig.DynamicDimensionConfig.AsteroidConfig;
 import bloodasp.galacticgreg.registry.GalacticGregRegistry;
+import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.VP;
 import cpw.mods.fml.common.IWorldGenerator;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.EventBus;
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.util.GT_Log;
@@ -506,6 +509,9 @@ public class GT_Worldgenerator_Space implements IWorldGenerator {
 						if (tRandomWeight <= 0) {
 							try {
 								if (tWorldGen.executeWorldgen(pWorld, pRandom, pBiome, Integer.MIN_VALUE, pX, pZ, pChunkGenerator, pChunkProvider)) {
+									if(Loader.isModLoaded("visualprospecting")) {
+										VP.serverCache.notifyOreVeinGeneration(pWorld.provider.dimensionId, Utils.coordBlockToChunk(pX), Utils.coordBlockToChunk(pZ), tWorldGen.mWorldGenName);
+									}
 									temp = false;
 								}
 							} catch (Throwable e) {
